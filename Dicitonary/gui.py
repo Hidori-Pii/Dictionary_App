@@ -14,9 +14,10 @@ import os
 maxInt = sys.maxsize
 
 while True:
-    # decrease the maxInt value by factor 10 
-    # as long as the OverflowError occurs.
-
+    """
+    fix field larger than field limit 
+    https://stackoverflow.com/questions/15063936/csv-error-field-larger-than-field-limit-131072
+    """
     try:
         csv.field_size_limit(maxInt)
         break
@@ -24,28 +25,75 @@ while True:
         maxInt = int(maxInt/10)
 
 def resource_path(relative_path):
+    """ 
+    Get absolute path to resource, works for dev and for PyInstaller 
+    https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile
+    
+    Args:
+    relative_path(Any): the sort path direct a file.
+    
+    Return: 
+    The full path direct a file
+    """
     try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS2
         base_path = sys._MEIPASS2
     except Exception:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
 
-
 # BackEnd
 class TrieNode(object):
+    """
+    The class create a Trie node.
+    """
     def __init__(self):
         self.meaning = None
         self.children = defaultdict(TrieNode)
 class Trie(object):
+    """
+    A Trie (prefix tree) data structure for efficient word insertion, search, and prefix matching.
+
+    Attributes:
+        root (TrieNode): The root node of the Trie.
+
+    Methods:
+        insert(word: str, meaning: Any) -> None:
+            Inserts a word into the Trie along with its associated meaning.
+        search(word: str) -> Any:
+            Searches for a word in the Trie and returns its meaning if found, else None.
+        find_word(prefix: str) -> List[str]:
+            Finds all words in the Trie that start with the given prefix.
+    """
     def __init__(self):
+        """
+        Initializes an empty Trie with a root node.
+        """
         self.root = TrieNode()
+
     def insert(self, word, meaning):
+        """
+        Inserts a word into the Trie along with its associated meaning.
+
+        Args:
+            word (str): The word to insert.
+            meaning (Any): The meaning or value associated with the word.
+        """
         node = self.root
         for char in word:
             node = node.children[char]
         node.meaning = meaning
     def search(self, word):
+        """
+        Searches for a word in the Trie and returns its meaning if found, else None.
+
+        Args:
+            word (str): The word to search for.
+
+        Returns:
+            Any: The meaning associated with the word, or None if not found.
+        """
         node = self.root
         for char in word:
             if char not in node.children:
@@ -60,6 +108,15 @@ class Trie(object):
         for letter, child_node in node.children.items():
             self.another_search(prefix + letter, child_node, word_list)
     def find_word(self, prefix):
+        """
+        Finds all words in the Trie that start with the given prefix.
+
+        Args:
+            prefix (str): The prefix to search for.
+
+        Returns:
+            List[str]: A list of words starting with the specified prefix.
+        """
         node = self.root
         for letter in prefix:
             if letter not in node.children:
@@ -74,7 +131,9 @@ q = PriorityQueue()
 trie = Trie()
 
 with open(resource_path(r"assets\Data\dictionary.csv"), mode='r') as file:
-    # Create a CSV reader object
+    """
+    Load word-meaning pairs from a CSV file into a Trie data structure.
+    """
     csv_reader = csv.reader(file)
     
     # Iterate over each row in the CSV file
@@ -82,6 +141,9 @@ with open(resource_path(r"assets\Data\dictionary.csv"), mode='r') as file:
         trie.insert(row[0].lower(), row[2])
 
 with open(resource_path(r"assets\Data\flashcard.csv"), mode="r") as file:
+    """
+    Load level-word-meaning tuple from a CSV file into a priority queue.
+    """
     csv_reader = csv.reader(file)
     for row in csv_reader:
         if len(row) >= 2:
@@ -89,6 +151,13 @@ with open(resource_path(r"assets\Data\flashcard.csv"), mode="r") as file:
             q.put((level, word, definition))
 
 def save_flashcard():
+    """
+    The function will save the words and meaning from the priority queue into a CSV file before close the window.
+    
+    Args:
+    No arguments are passed
+    
+    """
     if word_card != ("1", "Not Found", "Not Found") and word_card != None:
         q.put(word_card)
     flashcard_save = []
@@ -102,16 +171,25 @@ def save_flashcard():
     window.destroy()
 
 def on_entry_click(event):
+    """
+    The function create a placeholer into the textbox with content is "Enter English Word".
+    """
     if entry_1.get() == "Enter English Word":
       entry_1.delete(0, END)
       entry_1.configure(foreground="black")
 
 def on_focus_out(event):
+    """
+    The function keep content of the placeholder into the textbox will press mouse out the textbox.
+    """
     if entry_1.get() == "":
       entry_1.insert(0, "Enter English Word")
       entry_1.configure(foreground="white")
         
 def check_key(event, entry, master):
+    """
+    The 
+    """
     global listbox
     if listbox:
         listbox.destroy()
@@ -571,8 +649,6 @@ output_fm.place(x = 18.0, y=121.0)
 button_add_image = PhotoImage(
     file = resource_path(r"assets\frame0\Add.png")
 )
-
-
 
 window.resizable(False, False)
 window.mainloop()
