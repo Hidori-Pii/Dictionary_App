@@ -1,4 +1,9 @@
 # Dictionary
+
+### Annotation:
+this is just a demo program. Please don't use it for real life.
+
+
 ### About The App
 This is a friendly app dictionary, which is used tkinter library to build GUI.  
 * To use the app please use file ***Meow_Dictionary.exe*** file in folder **/dist**.  
